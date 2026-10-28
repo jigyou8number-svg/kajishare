@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>かじシェア｜HTMLファイルで開ける版</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --panel: #ffffff;
+      --text: #29303a;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --primary: #4f7cff;
+      --primary-soft: #eef2ff;
+      --danger: #b42318;
+      --danger-soft: #fee2e5;
+      --shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .app {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 20px 16px 90px;
+    }
+
+    .header {
+      padding: 8px 2px 0;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 34px;
+      letter-spacing: 0.02em;
+    }
+
+    .header .sub {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .completed-btn {
+      white-space: nowrap;
+      background: #fff;
+      color: var(--primary);
+      border: 1px solid #d9e3ff;
+      box-shadow: var(--shadow);
+    }
+
+    .nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 18px 0 16px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: 10px 0;
+      background: linear-gradient(to bottom, var(--bg) 75%, rgba(246,247,251,0.75));
+    }
+
+    .nav button {
+      border: 0;
+      background: #fff;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .nav button.active {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .tab {
+      display: none;
+    }
+
+    .tab.active {
+      display: block;
+    }
+
+    .panel {
+      background: var(--panel);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+
+    .panel h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .form-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .field span {
+      font-size: 13px;
+      font-weight: 800;
+      color: #48515f;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 11px 12px;
+      background: #fff;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.12);
+    }
+
+    textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 800;
+      background: var(--primary);
+      color: #fff;
+    }
+
+    button.secondary {
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    button.danger {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .label-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary-soft);
+      color: var(--primary);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+
+    .stat .label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .stat .value {
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+
+    .item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .check {
+      display: flex;
+      align-items: center;
+      padding-top: 2px;
+    }
+
+    .check input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+    }
+
+    .item-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .item-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .item.is-done .item-title {
+      text-decoration: line-through;
+      color: #98a2b3;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      background: #f3f5f8;
+      color: #48515f;
+      white-space: nowrap;
+    }
+
+    .badge.invisible {
+      background: #f3e8ff;
+      color: #7c3aed;
+    }
+
+    .badge.assign-me {
+      background: #eef7ff;
+      color: #2563eb;
+    }
+
+    .badge.assign-partner {
+      background: #fff0f5;
+      color: #d64f7a;
+    }
+
+    .badge.assign-undecided {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 auto;
+      border-radius: 10px;
+      background: #fff;
+      color: #6b7280;
+      border: 1px solid var(--line);
+      padding: 0;
+    }
+
+    .empty {
+      background: #fff;
+      border: 1px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .manual {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .manual summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .manual summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .manual-title {
+      font-size: 17px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .manual-body {
+      border-top: 1px solid var(--line);
+      padding: 14px;
+    }
+
+    .manual-image {
+      width: 100%;
+      max-height: 260px;
+      object-fit: cover;
+      border-radius: 14px;
+      margin: 0 0 12px;
+      display: block;
+    }
+
+    .advice {
+      background: #f0f7ff;
+      color: #1d4ed8;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      margin: 8px 0;
+    }
+
+    .step-add {
+      display: flex;
+      gap: 8px;
+    }
+
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .image-preview {
+      position: relative;
+      display: inline-block;
+    }
+
+    .image-preview img {
+      width: 200px;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 14px;
+      display: block;
+    }
+
+    .image-preview button {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.92);
+      color: #374151;
+      border: 1px solid var(--line);
+      padding: 0;
+    }
+
+    .muted {
+      color: #8a94a3;
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.38);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 100;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .modal {
+      width: min(640px, 100%);
+      max-height: 80vh;
+      overflow: auto;
+      background: #fff;
+      border-radius: 22px;
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.22);
+      padding: 18px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .note {
+      background: #fffbe8;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-top: 14px;
+    }
+
+    .chevron {
+      color: #98a2b3;
+      font-size: 18px;
+      transform: rotate(0deg);
+      transition: transform 0.18s ease;
+      flex: 0 0 auto;
+    }
+
+    details[open] .chevron {
+      transform: rotate(180deg);
+    }
+
+    @media (max-width: 860px) {
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .header h1 {
+        font-size: 28px;
+      }
+
+      .header-top {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="header-top">
+        <div>
+          <h1>かじシェア</h1>
+          <p class="sub">
+            HTMLファイルをダブルクリックして開けるプロトタイプ
+          </p>
+        </div>
+        <button class="secondary completed-btn" onclick="openCompletedToday()">✅ 完了タスク</button>
+      </div>
+    </header>
+
+    <nav class="nav">
+      <button id="nav-home" onclick="switchTab('home')">ホーム</button>
+      <button id="nav-tasks" onclick="switchTab('tasks')">タスク</button>
+      <button id="nav-manuals" onclick="switchTab('manuals')">マニュアル</button>
+      <button id="nav-settings" onclick="switchTab('settings')">データ</button>
+    </nav>
+
+    <main>
+      <!-- ホーム -->
+      <section id="tab-home" class="tab active">
+        <div id="home-content"></div>
+      </section>
+
+      <!-- タスク -->
+      <section id="tab-tasks" class="tab">
+        <p class="muted" style="margin: 0 0 12px;">
+          完了タスクは、上部の「✅ 完了タスク」ボタンから確認できます。
+        </p>
+
+        <div class="two-col">
+          <div class="panel">
+            <h2>🏠 家事タスク</h2>
+
+            <div class="form-stack">
+              <label class="field">
+                <span>タスク</span>
+                <input type="text" id="visible-name" placeholder="例：食器洗い" />
+              </label>
+
+              <div class="grid">
+                <label class="field">
+                  <span>担当</span>
+                  <select id="visible-assignee">
+                    <option>自分</option>
+                    <option>パートナー</option>
+                    <option>未定</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span>頻度</span>
+                  <select id="visible-frequency">
+                    <option value="daily">毎日</option>
+                    <option value="weekly">週1</option>
+                    <option value="monthly">月1</option>
+                    <option value="when_needed">必要時</option>
+                  </select>
+                </label>
+              </div>
+
+              <button onclick="addVisibleTask()">追加</button>
+            </div>
+
+            <div id="visible-list" class="list" style="margin-top: 16px;"></div>
+            <p class="muted" style="margin-top: 10px;">
+              チェックを入れると、今日の達成タスクに移動します。
+            </p>
+          </div>
+
+          <div class="panel">
+            <h2>👻 見えない家事</h2>
+
+            <div class="form-stack">
+              <label class="field">
+                <span>タスク</span>
+                <input type="text" id="invisible-name" placeholder="例：洗剤の在庫チェック" />
+              </label>
+
+              <div class="grid">
+                <label class="field">
+                  <span>担当</span>
+                  <select id="invisible-assignee">
+                    <option>自分</option>
+                    <option>パートナー</option>
+                    <option>未定</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span>頻度</span>
+                  <select id="invisible-frequency">
+                    <option value="daily">毎日</option>
+                    <option value="weekly">週1</option>
+                    <option value="monthly">月1</option>
+                    <option value="when_needed">必要時</option>
+                  </select>
+                </label>
+              </div>
+
+              <button onclick="addInvisibleTask()">追加</button>
+            </div>
+
+            <div id="invisible-list" class="list" style="margin-top: 16px;"></div>
+            <p class="muted" style="margin-top: 10px;">
+              考える・覚えておく・管理する系の家事をここに集めます。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- マニュアル -->
+      <section id="tab-manuals" class="tab">
+        <div class="panel">
+          <h2>📖 マニュアル作成</h2>
+
+          <div class="form-stack">
+            <label class="field">
+              <span>マニュアル名</span>
+              <input type="text" id="manual-title" placeholder="例：食器洗いの基本" />
+            </label>
+
+            <label class="field">
+              <span>写真（任意）</span>
+              <input type="file" id="manual-image" accept="image/*" onchange="onManualImage(event)" />
+            </label>
+
+            <div id="manual-image-preview"></div>
+
+            <div class="field">
+              <span>手順（任意）</span>
+              <div class="step-add">
+                <input type="text" id="manual-step-input" placeholder="例：油の多い皿は先に紙で拭く" />
+                <button class="secondary" onclick="addManualStep()">追加</button>
+              </div>
+              <div id="manual-step-list" class="step-list"></div>
+            </div>
+
+            <label class="field">
+              <span>アドバイス（一言二言）</span>
+              <textarea id="manual-advice" placeholder="例：忙しい日は「シンクが空」ならOK。完璧を目指しすぎない。"></textarea>
+            </label>
+
+            <button onclick="addManual()">マニュアルを保存</button>
+          </div>
+        </div>
+
+        <div id="manual-list" class="list"></div>
+      </section>
+
+      <!-- データ -->
+      <section id="tab-settings" class="tab">
+        <div class="panel">
+          <h2>データ管理</h2>
+          <p class="muted">
+            「データ」は、このプロトタイプに入力したタスクとマニュアルの保存内容です。
+            ブラウザの保存機能が使えない環境では、画面を閉じるとリセットされる場合があります。
+          </p>
+
+          <div class="actions">
+            <button onclick="exportData()">JSONエクスポート</button>
+            <label class="label-button">
+              JSONインポート
+              <input type="file" accept="application/json" onchange="importData(event)" hidden />
+            </label>
+            <button class="danger" onclick="resetData()">デモデータに戻す</button>
+          </div>
+
+          <div class="note">
+            このファイルは、サーバーなしで開ける1ファイル構成です。
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- 今日の達成タスクモーダル -->
+  <div id="modal-overlay" class="modal-overlay hidden" onclick="closeModalOverlay(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title">今日の達成タスク</h3>
+        <button class="icon-btn" onclick="closeModal()">✕</button>
+      </div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    'use strict';
+
+    const STORAGE_KEY = 'kaji-share-html-file-v1';
+    let memoryStore = {};
+
+    let state = loadState();
+    let manualFormSteps = [];
+    let manualFormImage = '';
+
+    function getStoredValue() {
+      try {
+        return window.localStorage.getItem(STORAGE_KEY);
+      } catch (e) {
+        return typeof memoryStore[STORAGE_KEY] === 'undefined' ? null : memoryStore[STORAGE_KEY];
+      }
+    }
+
+    function setStoredValue(value) {
+      try {
+        window.localStorage.setItem(STORAGE_KEY, value);
+      } catch (e) {
+        memoryStore[STORAGE_KEY] = value;
+      }
+    }
+
+    function loadState() {
+      try {
+        const raw = getStoredValue();
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.tasks) && Array.isArray(parsed.manuals)) {
+            return normalizeState(parsed);
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+      return seed();
+    }
+
+    function saveState() {
+      try {
+        setStoredValue(JSON.stringify(state));
+      } catch (e) {
+        console.error('保存に失敗しました', e);
+      }
+    }
+
+    function persist() {
+      saveState();
+      render();
+    }
+
+    function normalizeState(parsed) {
+      const now = Date.now();
+
+      const taskMap = new Map();
+
+      (parsed.tasks || []).forEach((t) => {
+        const done = !!t.done;
+
+        let invisible = false;
+        if (typeof t.invisible === 'boolean') {
+          invisible = t.invisible;
+        } else {
+          invisible = t.type === '見えない家事' || t.category === '管理・見えない家事';
+        }
+
+        const task = {
+          id: t.id || uid(),
+          name: t.name || '',
+          assignee: t.assignee || '未定',
+          frequency: t.frequency || 'daily',
+          invisible,
+          done,
+          completedAt: done ? (t.completedAt || now) : null,
+          createdAt: t.createdAt || now
+        };
+
+        taskMap.set(task.id, task);
+      });
+
+      const manualMap = new Map();
+
+      (parsed.manuals || []).forEach((m) => {
+        const fallbackAdvice = m.advice || m.summary || [m.ok, m.ng].filter(Boolean).join(' / ') || '';
+
+        const manual = {
+          id: m.id || uid(),
+          title: m.title || '',
+          image: m.image || '',
+          advice: fallbackAdvice,
+          steps: Array.isArray(m.steps) ? m.steps.map(String) : [],
+          updatedAt: m.updatedAt || Date.now()
+        };
+
+        manualMap.set(manual.id, manual);
+      });
+
+      return {
+        tasks: [...taskMap.values()],
+        manuals: [...manualMap.values()]
+      };
+    }
+
+    function seed() {
+      const now = Date.now();
+
+      return {
+        manuals: [
+          {
+            id: 'm1',
+            title: '食器洗い（我が家の基本）',
+            image: '',
+            advice: '忙しい日は「シンクが空」ならOK。完璧を目指しすぎない。',
+            steps: [
+              '油の多い皿は先に紙で拭く',
+              '洗剤は1プッシュまで',
+              '仕上げに水気を拭く'
+            ],
+            updatedAt: now - 100000
+          },
+          {
+            id: 'm2',
+            title: '洗濯〜たたみ',
+            image: '',
+            advice: '戻す場所までが洗濯。たたみ方は家庭のサイズで統一する。',
+            steps: [
+              '干す前にシワを伸ばす',
+              '下着・靴下はこのカゴへ',
+              '所定の場所に戻す'
+            ],
+            updatedAt: now - 90000
+          },
+          {
+            id: 'm3',
+            title: '子どものお出かけ準備',
+            image: '',
+            advice: '前日夜に玄関へ置いておくと、朝がかなり楽。',
+            steps: [
+              'おむつ・おしりふき',
+              '着替え一式',
+              '水筒・おやつ',
+              '母子手帳・保険証'
+            ],
+            updatedAt: now - 80000
+          }
+        ],
+        tasks: [
+          {
+            id: 't1',
+            name: '食器洗い',
+            assignee: 'パートナー',
+            frequency: 'daily',
+            invisible: false,
+            done: false,
+            completedAt: null,
+            createdAt: now - 70000
+          },
+          {
+            id: 't2',
+            name: '洗剤・スポンジの在庫チェック',
+            assignee: '自分',
+            frequency: 'weekly',
+            invisible: true,
+            done: false,
+            completedAt: null,
+            createdAt: now - 65000
+          },
+          {
+            id: 't3',
+            name: '洗濯物をたたんで戻す',
+            assignee: '自分',
+            frequency: 'daily',
+            invisible: false,
+            done: false,
+            completedAt: null,
+            createdAt: now - 60000
+          },
+          {
+            id: 't4',
+            name: '子どもの持ち物チェック',
+            assignee: 'パートナー',
+            frequency: 'daily',
+            invisible: true,
+            done: false,
+            completedAt: null,
+            createdAt: now - 55000
+          },
+          {
+            id: 't5',
+            name: '献立を考える',
+            assignee: '自分',
+            frequency: 'daily',
+            invisible: true,
+            done: true,
+            completedAt: now,
+            createdAt: now - 50000
+          },
+          {
+            id: 't6',
+            name: 'ゴミ出し',
+            assignee: 'パートナー',
+            frequency: 'weekly',
+            invisible: false,
+            done: false,
+            completedAt: null,
+            createdAt: now - 45000
+          }
+        ]
+      };
+    }
+
+    function uid() {
+      return 'id_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, (s) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[s]));
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach((el) => {
+        el.classList.toggle('active', el.id === 'tab-' + tab);
+      });
+
+      document.querySelectorAll('.nav button').forEach((btn) => {
+        btn.classList.toggle('active', btn.id === 'nav-' + tab);
+      });
+    }
+
+    function frequencyLabel(value) {
+      const map = {
+        daily: '毎日',
+        weekly: '週1',
+        monthly: '月1',
+        when_needed: '必要時'
+      };
+      return map[value] || value;
+    }
+
+    function assigneeBadge(assignee) {
+      let cls = 'assign-undecided';
+      if (assignee === '自分') cls = 'assign-me';
+      if (assignee === 'パートナー') cls = 'assign-partner';
+      return `<span class="badge ${cls}">👤 ${escapeHtml(assignee)}</span>`;
+    }
+
+    function isSameDay(a, b) {
+      const d1 = new Date(a);
+      const d2 = new Date(b);
+      return (
+        d1.getFullYear() === d2.getFullYear() &&
+        d1.getMonth() === d2.getMonth() &&
+        d1.getDate() === d2.getDate()
+      );
+    }
+
+    function todayCompletedTasks() {
+      const now = Date.now();
+      const map = new Map();
+
+      state.tasks.forEach((t) => {
+        if (t.done && t.completedAt && isSameDay(t.completedAt, now)) {
+          map.set(t.id, t);
+        }
+      });
+
+      return [...map.values()].sort((a, b) => b.completedAt - a.completedAt);
+    }
+
+    function todayLabel() {
+      return new Date().toLocaleDateString('ja-JP', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        weekday: 'short'
+      });
+    }
+
+    function updateCompletedButtons() {
+      const count = todayCompletedTasks().length;
+      document.querySelectorAll('.completed-btn').forEach((btn) => {
+        btn.textContent = `✅ 完了タスク（${count}）`;
+      });
+    }
+
+    function render() {
+      renderHome();
+      renderTasks();
+      renderManuals();
+      updateCompletedButtons();
+    }
+
+    function renderHome() {
+      const visibleUndone = state.tasks.filter((t) => !t.invisible && !t.done);
+      const invisibleUndone = state.tasks.filter((t) => t.invisible && !t.done);
+      const completedToday = todayCompletedTasks().length;
+      const undoneTotal = visibleUndone.length + invisibleUndone.length;
+
+      document.getElementById('home-content').innerHTML = `
+        <div class="stats">
+          <div class="stat">
+            <div class="label">未完了タスク</div>
+            <div class="value">${undoneTotal}</div>
+          </div>
+          <div class="stat">
+            <div class="label">見えない家事（未完了）</div>
+            <div class="value">${invisibleUndone.length}</div>
+          </div>
+          <div class="stat">
+            <div class="label">今日の達成</div>
+            <div class="value">${completedToday}</div>
+          </div>
+          <div class="stat">
+            <div class="label">マニュアル</div>
+            <div class="value">${state.manuals.length}</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="panel">
+            <h2>🏠 家事タスク</h2>
+            <div class="list">
+              ${visibleUndone.length ? visibleUndone.map(taskItem).join('') : '<div class="empty">未完了タスクはありません</div>'}
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>👻 見えない家事</h2>
+            <div class="list">
+              ${invisibleUndone.length ? invisibleUndone.map(taskItem).join('') : '<div class="empty">未完了タスクはありません</div>'}
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>使い方</h2>
+          <ul>
+            <li>家事タスクと見えない家事を、それぞれ専用欄で追加します</li>
+            <li>入力は「タスク・担当・頻度」だけです</li>
+            <li>チェックを入れると完了になり、今日の達成タスクへ入ります</li>
+            <li>完了タスクは上部の「✅ 完了タスク」ボタンから確認できます</li>
+          </ul>
+        </div>
+      `;
+    }
+
+    function renderTasks() {
+      const visibleUndone = state.tasks.filter((t) => !t.invisible && !t.done);
+      const invisibleUndone = state.tasks.filter((t) => t.invisible && !t.done);
+
+      document.getElementById('visible-list').innerHTML =
+        visibleUndone.length
+          ? visibleUndone.map(taskItem).join('')
+          : '<div class="empty">未完了タスクはありません</div>';
+
+      document.getElementById('invisible-list').innerHTML =
+        invisibleUndone.length
+          ? invisibleUndone.map(taskItem).join('')
+          : '<div class="empty">未完了タスクはありません</div>';
+    }
+
+    function taskItem(t) {
+      return `
+        <article class="card item ${t.done ? 'is-done' : ''}">
+          <label class="check">
+            <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask('${t.id}')" />
+          </label>
+
+          <div class="item-body">
+            <h3 class="item-title">${escapeHtml(t.name)}</h3>
+            <div class="badges">
+              ${assigneeBadge(t.assignee)}
+              <span class="badge">🔁 ${escapeHtml(frequencyLabel(t.frequency))}</span>
+              ${t.invisible ? '<span class="badge invisible">👻 見えない家事</span>' : ''}
+            </div>
+          </div>
+
+          <button class="icon-btn" onclick="deleteTask('${t.id}')" title="削除">✕</button>
+        </article>
+      `;
+    }
+
+    function addTask(invisible, prefix) {
+      const name = document.getElementById(prefix + '-name').value.trim();
+      if (!name) {
+        alert('タスク名を入力してください');
+        return;
+      }
+
+      const assignee = document.getElementById(prefix + '-assignee').value;
+      const frequency = document.getElementById(prefix + '-frequency').value;
+
+      state.tasks.unshift({
+        id: uid(),
+        name,
+        assignee,
+        frequency,
+        invisible,
+        done: false,
+        completedAt: null,
+        createdAt: Date.now()
+      });
+
+      persist();
+      document.getElementById(prefix + '-name').value = '';
+    }
+
+    function addVisibleTask() {
+      addTask(false, 'visible');
+    }
+
+    function addInvisibleTask() {
+      addTask(true, 'invisible');
+    }
+
+    function toggleTask(id) {
+      const task = state.tasks.find((t) => t.id === id);
+      if (!task) return;
+
+      task.done = !task.done;
+      task.completedAt = task.done ? Date.now() : null;
+
+      persist();
+    }
+
+    function toggleTaskAndRefreshModal(id) {
+      toggleTask(id);
+      openCompletedToday();
+    }
+
+    function deleteTask(id) {
+      if (!confirm('このタスクを削除しますか？')) return;
+      state.tasks = state.tasks.filter((t) => t.id !== id);
+      persist();
+    }
+
+    function renderManuals() {
+      renderManualFormSteps();
+      renderManualFormImage();
+
+      const listEl = document.getElementById('manual-list');
+
+      if (!state.manuals.length) {
+        listEl.innerHTML = '<div class="empty">マニュアルがまだありません</div>';
+        return;
+      }
+
+      listEl.innerHTML = state.manuals.map(manualCard).join('');
+    }
+
+    function manualCard(m) {
+      return `
+        <details class="card manual" id="manual-${m.id}">
+          <summary>
+            <div>
+              <div class="manual-title">${escapeHtml(m.title)}</div>
+              <div class="badges">
+                <span class="badge">📖 マニュアル</span>
+              </div>
+            </div>
+            <span class="chevron">⌄</span>
+          </summary>
+
+          <div class="manual-body">
+            ${m.image ? `<img class="manual-image" src="${escapeHtml(m.image)}" alt="マニュアル写真" />` : ''}
+
+            ${m.advice ? `<div class="advice">💡 ${escapeHtml(m.advice)}</div>` : ''}
+
+            ${
+              m.steps.length
+                ? `<h3>手順</h3><ol>${m.steps.map((s) => `<li>${escapeHtml(s)}</li>`).join('')}</ol>`
+                : ''
+            }
+
+            <div class="actions" style="justify-content:flex-end;">
+              <button class="danger" onclick="deleteManual('${m.id}')">削除</button>
+            </div>
+          </div>
+        </details>
+      `;
+    }
+
+    function addManualStep() {
+      const input = document.getElementById('manual-step-input');
+      const value = input.value.trim();
+      if (!value) return;
+
+      manualFormSteps.push(value);
+      input.value = '';
+      renderManualFormSteps();
+    }
+
+    function removeManualStep(index) {
+      manualFormSteps.splice(index, 1);
+      renderManualFormSteps();
+    }
+
+    function renderManualFormSteps() {
+      const el = document.getElementById('manual-step-list');
+      if (!el) return;
+
+      if (!manualFormSteps.length) {
+        el.innerHTML = '<div class="muted">まだ手順がありません</div>';
+        return;
+      }
+
+      el.innerHTML = manualFormSteps
+        .map((s, i) => {
+          return `
+            <div class="step-item">
+              <span>${i + 1}. ${escapeHtml(s)}</span>
+              <button class="icon-btn" onclick="removeManualStep(${i})">✕</button>
+            </div>
+          `;
+        })
+        .join('');
+    }
+
+    function onManualImage(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          manualFormImage = resizeImage(img);
+          renderManualFormImage();
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function resizeImage(img) {
+      const max = 800;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > max || height > max) {
+        if (width >= height) {
+          height = Math.round((height * max) / width);
+          width = max;
+        } else {
+          width = Math.round((width * max) / height);
+          height = max;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+
+      return canvas.toDataURL('image/jpeg', 0.72);
+    }
+
+    function removeManualImage() {
+      manualFormImage = '';
+      const fileInput = document.getElementById('manual-image');
+      if (fileInput) fileInput.value = '';
+      renderManualFormImage();
+    }
+
+    function renderManualFormImage() {
+      const el = document.getElementById('manual-image-preview');
+      if (!el) return;
+
+      if (!manualFormImage) {
+        el.innerHTML = '<div class="muted">写真プレビュー（任意）</div>';
+        return;
+      }
+
+      el.innerHTML = `
+        <div class="image-preview">
+          <img src="${manualFormImage}" alt="写真プレビュー" />
+          <button onclick="removeManualImage()">✕</button>
+        </div>
+      `;
+    }
+
+    function addManual() {
+      const title = document.getElementById('manual-title').value.trim();
+      const advice = document.getElementById('manual-advice').value.trim();
+
+      if (!title) {
+        alert('マニュアル名を入力してください');
+        return;
+      }
+
+      if (!advice && manualFormSteps.length === 0) {
+        alert('アドバイスか手順を1つ入力してください');
+        return;
+      }
+
+      const manual = {
+        id: uid(),
+        title,
+        image: manualFormImage,
+        advice,
+        steps: [...manualFormSteps],
+        updatedAt: Date.now()
+      };
+
+      state.manuals.unshift(manual);
+
+      manualFormSteps = [];
+      manualFormImage = '';
+
+      persist();
+
+      document.getElementById('manual-title').value = '';
+      document.getElementById('manual-advice').value = '';
+      document.getElementById('manual-image').value = '';
+    }
+
+    function deleteManual(id) {
+      if (!confirm('このマニュアルを削除しますか？')) return;
+      state.manuals = state.manuals.filter((m) => m.id !== id);
+      persist();
+    }
+
+    function openCompletedToday() {
+      const tasks = todayCompletedTasks();
+
+      const body = tasks.length
+        ? `<div class="list">${tasks.map(completedTaskItem).join('')}</div>`
+        : '<div class="empty">今日はまだ達成タスクがありません</div>';
+
+      document.getElementById('modal-title').textContent = `今日の達成タスク（${todayLabel()}）`;
+      document.getElementById('modal-body').innerHTML = body;
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    function completedTaskItem(t) {
+      return `
+        <article class="card item is-done">
+          <label class="check">
+            <input type="checkbox" checked onchange="toggleTaskAndRefreshModal('${t.id}')" />
+          </label>
+
+          <div class="item-body">
+            <h3 class="item-title">${escapeHtml(t.name)}</h3>
+            <div class="badges">
+              ${assigneeBadge(t.assignee)}
+              <span class="badge">🔁 ${escapeHtml(frequencyLabel(t.frequency))}</span>
+              ${t.invisible ? '<span class="badge invisible">👻 見えない家事</span>' : ''}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.add('hidden');
+    }
+
+    function closeModalOverlay(event) {
+      if (event.target.id === 'modal-overlay') {
+        closeModal();
+      }
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'kajispace-data.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (!parsed || !Array.isArray(parsed.tasks) || !Array.isArray(parsed.manuals)) {
+            throw new Error('invalid format');
+          }
+
+          state = normalizeState(parsed);
+          manualFormSteps = [];
+          manualFormImage = '';
+          persist();
+          alert('インポートしました');
+        } catch (err) {
+          alert('インポートに失敗しました。JSON形式を確認してください。');
+        }
+      };
+
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function resetData() {
+      if (!confirm('デモデータに戻しますか？現在のデータは消えます。')) return;
+      state = seed();
+      manualFormSteps = [];
+      manualFormImage = '';
+      persist();
+    }
+
+    function init() {
+      const stepInput = document.getElementById('manual-step-input');
+      if (stepInput) {
+        stepInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            addManualStep();
+          }
+        });
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeModal();
+        }
+      });
+
+      render();
+      switchTab('home');
+    }
+
+    init();
+  </script>
+</body>
+</html>
